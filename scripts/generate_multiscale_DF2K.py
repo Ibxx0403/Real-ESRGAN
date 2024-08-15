@@ -7,8 +7,8 @@ from PIL import Image
 def main(args):
     # For DF2K, we consider the following three scales,
     # and the smallest image whose shortest edge is 400
-    scale_list = [0.75, 0.5, 1 / 3]
-    shortest_edge = 400
+    scale_list = [0.75, 0.6, 0.5]
+    shortest_edge = 640
 
     path_list = sorted(glob.glob(os.path.join(args.input, '*')))
     for path in path_list:
@@ -20,7 +20,7 @@ def main(args):
         for idx, scale in enumerate(scale_list):
             print(f'\t{scale:.2f}')
             rlt = img.resize((int(width * scale), int(height * scale)), resample=Image.LANCZOS)
-            rlt.save(os.path.join(args.output, f'{basename}T{idx}.png'))
+            rlt.convert('RGB').save(os.path.join(args.output, f'{basename}T{idx}.jpg'), 'JPEG', quality=95)
 
         # save the smallest image which the shortest edge is 400
         if width < height:
@@ -32,7 +32,7 @@ def main(args):
             height = shortest_edge
             width = int(height * ratio)
         rlt = img.resize((int(width), int(height)), resample=Image.LANCZOS)
-        rlt.save(os.path.join(args.output, f'{basename}T{idx+1}.png'))
+        rlt.convert('RGB').save(os.path.join(args.output, f'{basename}T{idx+1}.jpg'), 'JPEG', quality=95)
 
 
 if __name__ == '__main__':
