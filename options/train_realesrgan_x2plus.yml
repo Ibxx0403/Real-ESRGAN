@@ -7,30 +7,30 @@ manual_seed: 0
 
 # ----------------- options for synthesizing training data in RealESRGANModel ----------------- #
 # USM the ground-truth
-l1_gt_usm: True
-percep_gt_usm: True
+l1_gt_usm: False
+percep_gt_usm: False
 gan_gt_usm: False
 
 # the first degradation process
 resize_prob: [0.2, 0.7, 0.1]  # up, down, keep
 resize_range: [0.15, 1.5]
-gaussian_noise_prob: 0.5
-noise_range: [1, 30]
-poisson_scale_range: [0.05, 3]
-gray_noise_prob: 0.4
-jpeg_range: [30, 95]
+gaussian_noise_prob: 0
+noise_range: [0, 0]
+poisson_scale_range: [0, 0]
+gray_noise_prob: 0
+jpeg_range: [75, 95]
 
 # the second degradation process
 second_blur_prob: 0.8
 resize_prob2: [0.3, 0.4, 0.3]  # up, down, keep
 resize_range2: [0.3, 1.2]
 gaussian_noise_prob2: 0.5
-noise_range2: [1, 25]
-poisson_scale_range2: [0.05, 2.5]
-gray_noise_prob2: 0.4
-jpeg_range2: [30, 95]
+noise_range2: [0, 0]
+poisson_scale_range2: [0, 0]
+gray_noise_prob2: 0
+jpeg_range2: [75, 95]
 
-gt_size: 128
+gt_size: 256
 queue_size: 180
 
 # dataset and data loader settings
@@ -43,9 +43,9 @@ datasets:
     io_backend:
       type: disk
 
-    blur_kernel_size: 21
+    blur_kernel_size: 12
     kernel_list: ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso']
-    kernel_prob: [0.45, 0.25, 0.12, 0.03, 0.12, 0.03]
+    kernel_prob: [0.65, 0.25, 0.12, 0.03, 0.12, 0.03]
     sinc_prob: 0.1
     blur_sigma: [0.2, 3]
     betag_range: [0.5, 4]
@@ -53,7 +53,7 @@ datasets:
 
     blur_kernel_size2: 21
     kernel_list2: ['iso', 'aniso', 'generalized_iso', 'generalized_aniso', 'plateau_iso', 'plateau_aniso']
-    kernel_prob2: [0.45, 0.25, 0.12, 0.03, 0.12, 0.03]
+    kernel_prob2: [0.65, 0.25, 0.12, 0.03, 0.12, 0.03]
     sinc_prob2: 0.1
     blur_sigma2: [0.2, 1.5]
     betag_range2: [0.5, 4]
@@ -61,9 +61,9 @@ datasets:
 
     final_sinc_prob: 0.8
 
-    gt_size: 128
+    gt_size: 256
     use_hflip: True
-    use_rot: False
+    use_rot: True
 
     # data loader
     use_shuffle: true
@@ -83,13 +83,13 @@ datasets:
 
 # network structures
 network_g:
-  type: RRDBNet
+  type: SRVGGNetCompact
   num_in_ch: 3
   num_out_ch: 3
   num_feat: 64
-  num_block: 23
-  num_grow_ch: 32
-  scale: 2
+  num_conv: 16
+  upscale: 2
+  act_type: prelu
 
 network_d:
   type: UNetDiscriminatorSN
@@ -100,7 +100,7 @@ network_d:
 # path
 path:
   # use the pre-trained Real-ESRNet model
-  pretrain_network_g: experiments/pretrained_models/RealESRGAN_x2plus.pth
+  pretrain_network_g:
   param_key_g: params_ema
   strict_load_g: true
   resume_state: ~
@@ -124,7 +124,7 @@ train:
     milestones: [400000]
     gamma: 0.5
 
-  total_iter: 100
+  total_iter: 400000
   warmup_iter: -1  # no warm up
 
   # losses
@@ -173,8 +173,8 @@ train:
 
 # logging settings
 logger:
-  print_freq: 25
-  save_checkpoint_freq: !!float 5e3
+  print_freq: 100
+  save_checkpoint_freq: !!float 10e3
   use_tb_logger: true
   wandb:
     project: ~
